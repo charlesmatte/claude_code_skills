@@ -15,7 +15,9 @@ Extract and formalize domain terminology from the current conversation into a co
    - Different words used for the same concept (synonyms)
    - Vague or overloaded terms
 3. **Propose a canonical glossary** with opinionated term choices
-4. **Write to `UBIQUITOUS_LANGUAGE.md`** in the working directory using the format below
+4. **Choose where to save the glossary**. Ask the user: **"Where should I save the glossary — as a local file (`UBIQUITOUS_LANGUAGE.md`), or as a Confluence page?"**
+   - **If local file (default):** Write to `UBIQUITOUS_LANGUAGE.md` in the working directory using the format below.
+   - **If Confluence:** Use the Atlassian MCP tool `getConfluenceSpaces` to list available spaces. Ask the user which space (and optionally which parent page) to create it under. Use `createConfluencePage` with title "Ubiquitous Language" and the glossary content.
 5. **Output a summary** inline in the conversation
 
 ## Output Format

@@ -17,9 +17,9 @@ A deep module (as opposed to a shallow module) is one which encapsulates a lot o
 
 Check with the user that these modules match their expectations. Check with the user which modules they want tests written for.
 
-5. Choose issue tracker and verify access.
+5. Choose destination and verify access.
 
-Ask the user: **"Should I create this PRD in GitHub or Jira?"**
+Ask the user: **"Where should I create this PRD — GitHub, Jira, or Confluence?"**
 
 **If GitHub:**
 1. Run `gh auth status` to verify authentication. If not authenticated, ask the user to run `! gh auth login`.
@@ -29,7 +29,12 @@ Ask the user: **"Should I create this PRD in GitHub or Jira?"**
 1. Use the Atlassian MCP tool `getVisibleJiraProjects` to verify connectivity and list available projects. If the connection fails, tell the user their Jira/Atlassian integration is not authenticated and ask them to set it up.
 2. Show the user the list of available projects and ask: **"Which Jira project should I create the PRD in?"** Wait for their selection before proceeding.
 
-6. Create the issue.
+**If Confluence:**
+1. Use the Atlassian MCP tool `getConfluenceSpaces` to verify connectivity and list available spaces. If the connection fails, tell the user their Confluence/Atlassian integration is not authenticated and ask them to set it up.
+2. Show the user the list of available spaces and ask: **"Which Confluence space should I create the PRD in?"** Wait for their selection before proceeding.
+3. Optionally ask if they want it under a specific parent page.
+
+6. Create the document.
 
 **If GitHub:** Create the issue using `gh issue create`. Populate as many fields as possible:
 - Add labels for the type of work (e.g., `prd`, `feature`, `enhancement`). Use `gh label list` to check available labels first; create missing labels with `gh label create` if needed.
@@ -39,6 +44,8 @@ Ask the user: **"Should I create this PRD in GitHub or Jira?"**
 - **Priority**: Set based on the urgency and impact discussed during the interview — `"Highest"` for critical user-facing issues, `"High"` for important features with clear demand, `"Medium"` for planned improvements, `"Low"` for exploratory work. Use `{"priority": {"name": "<level>"}}`.
 - **Labels**: Add relevant labels (e.g., `["prd", "feature"]` plus any domain-specific labels discussed).
 - **Time estimate**: Set `timetracking.originalEstimate` for the overall feature based on the number of modules identified and user stories listed. Use rough sizing: small feature (1-3 stories, 1 module) → `"3d"`, medium (4-8 stories, 2-3 modules) → `"1w"`, large (9+ stories, 4+ modules) → `"2w"`. This is the total implementation estimate, not just the PRD writing time.
+
+**If Confluence:** Create the page using the Atlassian MCP tool `createConfluencePage` in the selected space. If the user specified a parent page, set it as the parent. Use the PRD title as the page title.
 
 Use the template below to write the PRD.
 

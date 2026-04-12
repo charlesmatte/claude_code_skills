@@ -19,9 +19,9 @@ This skill will be invoked when the user wants to create a refactor request. You
 
 7. Break the implementation into a plan of tiny commits. Remember Martin Fowler's advice to "make each refactoring step as small as possible, so that you can always see the program working."
 
-8. Choose issue tracker and verify access.
+8. Choose destination and verify access.
 
-Ask the user: **"Should I create this issue in GitHub or Jira?"**
+Ask the user: **"Where should I create this refactor plan — GitHub, Jira, or Confluence?"**
 
 **If GitHub:**
 1. Run `gh auth status` to verify authentication. If not authenticated, ask the user to run `! gh auth login`.
@@ -31,7 +31,12 @@ Ask the user: **"Should I create this issue in GitHub or Jira?"**
 1. Use the Atlassian MCP tool `getVisibleJiraProjects` to verify connectivity and list available projects. If the connection fails, tell the user their Jira/Atlassian integration is not authenticated and ask them to set it up.
 2. Show the user the list of available projects and ask: **"Which Jira project should I create the issue in?"** Wait for their selection before proceeding.
 
-9. Create the issue with the refactor plan.
+**If Confluence:**
+1. Use the Atlassian MCP tool `getConfluenceSpaces` to verify connectivity and list available spaces. If the connection fails, tell the user their Confluence/Atlassian integration is not authenticated and ask them to set it up.
+2. Show the user the list of available spaces and ask: **"Which Confluence space should I create the refactor plan in?"** Wait for their selection before proceeding.
+3. Optionally ask if they want it under a specific parent page.
+
+9. Create the document.
 
 **If GitHub:** Create the issue using `gh issue create`. Populate as many fields as possible:
 - Add labels for the type of work (e.g., `refactor`, `tech-debt`). Use `gh label list` to check available labels first; create missing labels with `gh label create` if needed.
@@ -42,7 +47,9 @@ Ask the user: **"Should I create this issue in GitHub or Jira?"**
 - **Labels**: Add relevant labels (e.g., `["refactor", "tech-debt"]`).
 - **Time estimate**: Set `timetracking.originalEstimate` based on the number of commits in the plan. Count ~30min per tiny commit as a baseline (e.g., 10 commits → `"1d"`, 20 commits → `"2d"`). Adjust up for commits that involve schema changes or cross-cutting concerns.
 
-Use the following template for the issue description:
+**If Confluence:** Create the page using the Atlassian MCP tool `createConfluencePage` in the selected space. If the user specified a parent page, set it as the parent. Use a descriptive title like "Refactor Plan: <summary>".
+
+Use the following template for the document:
 
 <refactor-plan-template>
 

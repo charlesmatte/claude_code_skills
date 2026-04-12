@@ -1,11 +1,11 @@
 ---
 name: qa
-description: Interactive QA session where user reports bugs or issues conversationally, and the agent files GitHub issues. Explores the codebase in the background for context and domain language. Use when user wants to report bugs, do QA, file issues conversationally, or mentions "QA session".
+description: Interactive QA session where user reports bugs or issues conversationally, and the agent files GitHub or Jira issues. Explores the codebase in the background for context and domain language. Use when user wants to report bugs, do QA, file issues conversationally, or mentions "QA session".
 ---
 
 # QA Session
 
-Run an interactive QA session. The user describes problems they're encountering. You clarify, explore the codebase for context, and file GitHub issues that are durable, user-focused, and use the project's domain language.
+Run an interactive QA session. The user describes problems they're encountering. You clarify, explore the codebase for context, and file issues (GitHub or Jira) that are durable, user-focused, and use the project's domain language.
 
 ## For each issue the user raises
 
@@ -29,7 +29,21 @@ While talking to the user, kick off an Agent (subagent_type=Explore) in the back
 
 This context helps you write a better issue — but the issue itself should NOT reference specific files, line numbers, or internal implementation details.
 
-### 3. Assess scope: single issue or breakdown?
+### 3. Choose issue tracker (once per session)
+
+On the first issue of the session, ask the user: **"Should I file issues in GitHub or Jira?"**
+
+**If GitHub:**
+1. Run `gh auth status` to verify authentication. If not authenticated, ask the user to run `! gh auth login`.
+2. Run `gh repo view --json nameWithOwner -q .nameWithOwner` to identify the current repository. Show the user the repo name and ask: **"I'll file issues in `<owner/repo>`. Is that correct?"** Wait for confirmation before proceeding.
+
+**If Jira:**
+1. Use the Atlassian MCP tool `getVisibleJiraProjects` to verify connectivity and list available projects. If the connection fails, tell the user their Jira/Atlassian integration is not authenticated and ask them to set it up.
+2. Show the user the list of available projects and ask: **"Which Jira project should I file issues in?"** Wait for their selection before proceeding.
+
+Remember the user's choice for the remainder of the session — do not ask again for subsequent issues.
+
+### 4. Assess scope: single issue or breakdown?
 
 Before filing, decide whether this is a **single issue** or needs to be **broken down** into multiple issues.
 
@@ -44,11 +58,17 @@ Keep as a single issue when:
 - It's one behavior that's wrong in one place
 - The symptoms are all caused by the same root behavior
 
-### 4. File the GitHub issue(s)
+### 5. File the issue(s)
 
-Create issues with `gh issue create`. Do NOT ask the user to review first — just file and share URLs.
+Do NOT ask the user to review before filing — just file and share URLs/keys.
 
 Issues must be **durable** — they should still make sense after major refactors. Write from the user's perspective.
+
+**If GitHub:** Create issues with `gh issue create`. Add a `bug` label (check available labels with `gh label list` first; create with `gh label create` if needed).
+
+**If Jira:** Create issues using the Atlassian MCP tool `createJiraIssue` with the selected project. Use issue type "Bug". Use `additional_fields` to populate:
+- **Priority**: `"High"` for broken core functionality, `"Medium"` for degraded behavior, `"Low"` for cosmetic issues. Use `{"priority": {"name": "<level>"}}`.
+- **Labels**: Add relevant labels (e.g., `["bug", "qa-session"]`).
 
 #### For a single issue
 
@@ -76,14 +96,17 @@ Use this template:
 
 #### For a breakdown (multiple issues)
 
-Create issues in dependency order (blockers first) so you can reference real issue numbers.
+Create issues in dependency order (blockers first) so you can reference real issue numbers/keys.
+
+**If GitHub:** Use `#<issue-number>` to reference other issues.
+**If Jira:** Use the Jira issue key (e.g., `PROJ-123`) to reference other issues. Use `createIssueLink` to create blocking relationships between issues.
 
 Use this template for each sub-issue:
 
 ```
 ## Parent issue
 
-#<parent-issue-number> (if you created a tracking issue) or "Reported during QA session"
+<issue-reference> (if you created a tracking issue) or "Reported during QA session"
 
 ## What's wrong
 
@@ -99,7 +122,7 @@ Use this template for each sub-issue:
 
 ## Blocked by
 
-- #<issue-number> (if this issue can't be fixed until another is resolved)
+- <issue-reference> (if this issue can't be fixed until another is resolved)
 
 Or "None — can start immediately" if no blockers.
 
@@ -112,7 +135,7 @@ When creating a breakdown:
 
 - **Prefer many thin issues over few thick ones** — each should be independently fixable and verifiable
 - **Mark blocking relationships honestly** — if issue B genuinely can't be tested until issue A is fixed, say so. If they're independent, mark both as "None — can start immediately"
-- **Create issues in dependency order** so you can reference real issue numbers in "Blocked by"
+- **Create issues in dependency order** so you can reference real issue numbers/keys in "Blocked by"
 - **Maximize parallelism** — the goal is that multiple people (or agents) can grab different issues simultaneously
 
 #### Rules for all issue bodies
@@ -123,8 +146,8 @@ When creating a breakdown:
 - **Reproduction steps are mandatory** — if you can't determine them, ask the user
 - **Keep it concise** — a developer should be able to read the issue in 30 seconds
 
-After filing, print all issue URLs (with blocking relationships summarized) and ask: "Next issue, or are we done?"
+After filing, print all issue URLs/keys (with blocking relationships summarized) and ask: "Next issue, or are we done?"
 
-### 5. Continue the session
+### 6. Continue the session
 
 Keep going until the user says they're done. Each issue is independent — don't batch them.

@@ -80,8 +80,9 @@ Iterate until the user approves.
 Ask the user where they want the plan saved. Options:
 
 - **As a file in the repo** (e.g., `docs/qa/QA-PLAN-<PRD-KEY>.md`): Write using the Write tool.
-- **As a Jira issue/comment**: Create a new "Task" issue linked to the PRD, or add as a comment on the PRD issue using `addCommentToJiraIssue`.
 - **As a GitHub issue/comment**: Create via `gh issue create` linked to the PRD, or add as a comment via `gh issue comment`.
+- **As a Jira issue/comment**: Create a new "Task" issue linked to the PRD, or add as a comment on the PRD issue using `addCommentToJiraIssue`.
+- **As a Confluence page**: Use the Atlassian MCP tool `createConfluencePage` to create it in the relevant space. Ask the user which space and optionally which parent page to create it under.
 
 If the user doesn't have a preference, default to saving as a markdown file in the repo.
 

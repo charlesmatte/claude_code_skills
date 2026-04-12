@@ -71,9 +71,9 @@ After comparing, give your own recommendation: which design you think is stronge
 
 ### 6. User picks an interface (or accepts recommendation)
 
-### 7. Choose issue tracker and verify access
+### 7. Choose destination and verify access
 
-Ask the user: **"Should I create this issue in GitHub or Jira?"**
+Ask the user: **"Where should I create this RFC — GitHub, Jira, or Confluence?"**
 
 **If GitHub:**
 1. Run `gh auth status` to verify authentication. If not authenticated, ask the user to run `! gh auth login`.
@@ -82,6 +82,11 @@ Ask the user: **"Should I create this issue in GitHub or Jira?"**
 **If Jira:**
 1. Use the Atlassian MCP tool `getVisibleJiraProjects` to verify connectivity and list available projects. If the connection fails, tell the user their Jira/Atlassian integration is not authenticated and ask them to set it up.
 2. Show the user the list of available projects and ask: **"Which Jira project should I create the issue in?"** Wait for their selection before proceeding.
+
+**If Confluence:**
+1. Use the Atlassian MCP tool `getConfluenceSpaces` to verify connectivity and list available spaces. If the connection fails, tell the user their Confluence/Atlassian integration is not authenticated and ask them to set it up.
+2. Show the user the list of available spaces and ask: **"Which Confluence space should I create the RFC in?"** Wait for their selection before proceeding.
+3. Optionally ask if they want it under a specific parent page.
 
 ### 8. Create the issue
 
@@ -95,3 +100,5 @@ Use the template in [REFERENCE.md](REFERENCE.md). Do NOT ask the user to review 
 - **Priority**: Set based on the severity of the architectural friction (e.g., `{"priority": {"name": "Medium"}}` for typical refactors, `"High"` if the coupling is actively causing bugs or blocking work).
 - **Labels**: Add relevant labels (e.g., `["refactor", "architecture", "tech-debt"]`).
 - **Time estimate**: Set `timetracking.originalEstimate` based on the scope of the proposed refactor (e.g., `"2d"` for a small module merge, `"1w"` for a large cross-cutting change). Base this on the number of commits/steps identified in the RFC.
+
+**If Confluence:** Create the page using the Atlassian MCP tool `createConfluencePage` in the selected space. If the user specified a parent page, set it as the parent. Use a descriptive title like "Architecture RFC: <module name>".
